@@ -4,7 +4,6 @@ title: '你應該劃分工作階段來提升生產力'
 categories: ["隨筆"]
 lastmod: 2026-04-10
 tags: ["分享","BlogBlog 同樂會"]
-coverImage: /images/cover.jpg
 description: "這是 Jabee 我的「」的投稿文章。本月主題是「」！ <hr Jabee 在上大學前每天高中的日常就是早上到學校先抄一抄功課（因為前一天是不會寫的），然後該考..."
 ---
 

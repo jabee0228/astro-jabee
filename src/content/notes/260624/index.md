@@ -4,7 +4,6 @@ title: '畢業感傷文？'
 categories: ["隨筆"]
 lastmod: 2026-07-21
 tags: ["隨筆"]
-coverImage: /images/cover.jpg
 description: "我對於要畢業要離開熟悉的同學這件事情也沒什麼特別的想法。一方面最近過得很愉快，一方面我本來也就不是個念舊的人。當然，認識 Jabee 的都知道，我就不是一個感性..."
 ---
 

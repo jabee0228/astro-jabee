@@ -4,7 +4,6 @@ title: 'Jabee 的育兒觀 EP1：從乖到服從，當個叛逆小孩'
 categories: ["隨筆"]
 lastmod: 2026-04-15
 tags: ["分享"]
-coverImage: /images/cover.jpg
 description: "雖然從小到大我不覺得我算一個 \"乖\" 的小孩，不過今天主要分享的並不是所謂在華人眼裡的 \"乖\" ，而是英文字翻出來的服從。 前兩年蔡康永在節目上說了英文沒有乖這..."
 ---
 

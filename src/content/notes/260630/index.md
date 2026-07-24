@@ -3,7 +3,6 @@ date: '2026-06-30T21:53:33+08:00'
 title: '總在音樂響起的那刻，回到那時的感覺'
 categories: ["隨筆"]
 tags: ["分享","BlogBlog 同樂會"]
-coverImage: /images/cover.jpg
 description: "這是我的「」的投稿文章。本月主題是「」，由 主持。如果你有自己的部落格，歡迎一起來參加！ <hr 本月的主題是音樂與記憶，老實說，Jabee 我想不到真的有什麼..."
 ---
 

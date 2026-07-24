@@ -4,7 +4,6 @@ title: '喜歡是一種能力，被喜歡是一種天賦。'
 categories: ["隨筆"]
 lastmod: 2026-05-25
 tags: ["分享","BlogBlog 同樂會"]
-coverImage: /images/cover.jpg
 description: "這是我的「」的投稿文章。本月主題是「」，由 主持。如果你有自己的部落格，歡迎一起來參加！ 老實說看到本月的題目讓我很苦惱，我想了很久實在想不太到。倒也不是沒有腦..."
 ---
 

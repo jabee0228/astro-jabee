@@ -3,7 +3,7 @@ date: '2026-07-17T12:19:27+08:00'
 title: '2026 上半年 Recap - 大學生涯最後的半年，也是最開心的半年'
 categories: ["回顧"]
 tags: ["回顧","閒聊"]
-coverImage: /images/cover.jpg
+
 description: "嘿嘿，想不到吧，今年才7月，Jabee 我竟然寫了 Recap。這其實源自於上半年做了不少事情（除了去學校上課以外的事情），我認為已經足夠多能寫一篇 Recap..."
 ---
 
