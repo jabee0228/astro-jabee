@@ -1,0 +1,284 @@
+---
+import { getCollection, render } from 'astro:content';
+import Layout from "../../layouts/Layout.astro";
+import YouTube from "../../components/YouTube.astro";
+// Note: Callout, Youtube imports can be omitted if not exist, or added if they do.
+// I will not import them unless they exist. Wait, let's assume they might not exist, but let's check.
+// I will just use <Content /> without custom components for now, or check if they exist.
+// Let's implement the routing properly first.
+
+export async function getStaticPaths() {
+  const getSlug = (id) => id.replace(/\/(?:index)?\.mdx?$/, '').replace(/\.mdx?$/, '');
+  const posts = await getCollection("notes");
+  posts.sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf());
+
+  return posts.map((post, index) => {
+    return {
+      params: { slug: getSlug(post.id) },
+      props: {
+        post,
+        prevPost: index + 1 < posts.length ? posts[index + 1] : null,
+        nextPost: index - 1 >= 0 ? posts[index - 1] : null,
+      },
+    };
+  });
+}
+
+const getSlug = (id) => id.replace(/\/(?:index)?\.mdx?$/, '').replace(/\.mdx?$/, '');
+const { post, prevPost, nextPost } = Astro.props;
+const { Content, headings } = await render(post);
+
+const formattedDate = post.data.date.toLocaleDateString("en-US", {
+  year: "numeric",
+  month: "long",
+  day: "numeric",
+});
+
+const formattedLastMod = post.data.lastmod ? post.data.lastmod.toLocaleDateString("en-US", {
+  year: "numeric",
+  month: "long",
+  day: "numeric",
+}) : null;
+
+// Since we may not have wordCount in our schema, I'll provide safe fallbacks
+const wordCount = post.body ? (post.body.match(/[\u4e00-\u9fa5]|\w+/g)?.length || 0) : 0;
+const SITE_AUTHOR = {
+  name: "Jabee姜",
+  title: "CS Master's Student, Photographer",
+  avatar: "/IMG_9991.JPEG",
+};
+
+// Find cover image from markdown if possible
+let coverImage = null;
+if (post.data.coverImage) {
+  coverImage = typeof post.data.coverImage === 'string' ? post.data.coverImage : post.data.coverImage.src;
+} else if (post.body && post.body.includes("![Dummy Image](")) {
+  const match = post.body.match(/!\[.*?\]\((.*?)\)/);
+  if (match && match[1]) coverImage = match[1];
+}
+---
+
+<Layout title={`${post.data.title} - Jabee's Blog`}>
+  <div class="max-w-5xl mx-auto">
+    <article class="max-w-none">
+      <!-- Hero Image -->
+      {
+        coverImage && (
+          <div class="w-full h-64 md:h-96 rounded-2xl overflow-hidden mb-8 border border-gray-200 dark:border-gray-800">
+            <img
+              src={coverImage}
+              alt={post.data.title}
+              class="w-full h-full object-cover"
+            />
+          </div>
+        )
+      }
+
+      <!-- Header Section -->
+      <header class="mb-10 text-center md:text-left">
+        <h1
+          class="text-3xl md:text-5xl font-bold tracking-tight text-gray-900 dark:text-white mb-4"
+        >
+          {post.data.title}
+        </h1>
+
+        <!-- Meta Row -->
+        <div
+          class="flex flex-wrap items-center justify-center md:justify-start gap-4 text-sm text-gray-600 dark:text-gray-400 mb-6"
+        >
+          <time datetime={post.data.date.toISOString()}>{formattedDate}</time>
+          {formattedLastMod && (
+            <>
+              <span class="hidden sm:inline">&bull;</span>
+              <time datetime={post.data.lastmod.toISOString()} class="italic">Updated: {formattedLastMod}</time>
+            </>
+          )}
+          <span class="hidden sm:inline">&bull;</span>
+          {wordCount > 0 && <span>{wordCount} words</span>}
+          <span class="hidden sm:inline">&bull;</span>
+          {
+            post.data.categories && post.data.categories.length > 0 && (
+              <a
+                href={`/categories/${post.data.categories[0]}`}
+                class="uppercase tracking-wider text-xs font-semibold hover:text-gray-900 dark:hover:text-white transition-colors"
+              >
+                {post.data.categories[0]}
+              </a>
+            )
+          }
+          {post.data.tags && post.data.tags.length > 0 && (
+            <>
+              <span class="hidden sm:inline">&bull;</span>
+              <div class="flex gap-2">
+                {post.data.tags.map((tag) => (
+                  <a
+                    href={`/tags/${tag.toLowerCase().replace(/\s+/g, "-")}`}
+                    class="text-xs font-medium hover:text-gray-900 dark:hover:text-white transition-colors"
+                  >
+                    #{tag}
+                  </a>
+                ))}
+              </div>
+            </>
+          )}
+        </div>
+
+        <!-- Author Block -->
+        <a
+          href="/about"
+          class="inline-flex items-center gap-3 p-3 rounded-xl border border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-gray-900/50 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors group"
+        >
+          <!-- Avatar Image -->
+          <div
+            class="w-12 h-12 rounded-full flex items-center justify-center overflow-hidden group-hover:scale-105 transition-transform border border-gray-200 dark:border-gray-700 bg-gray-100 dark:bg-gray-800"
+          >
+            <img
+              src={SITE_AUTHOR.avatar}
+              alt={SITE_AUTHOR.name}
+              class="w-full h-full object-cover"
+            />
+          </div>
+          <div class="text-left">
+            <p
+              class="font-semibold text-gray-900 dark:text-white group-hover:text-black dark:group-hover:text-gray-200 transition-colors"
+            >
+              {SITE_AUTHOR.name}
+            </p>
+            <p class="text-xs text-gray-500 dark:text-gray-400">
+              {SITE_AUTHOR.title}
+            </p>
+          </div>
+        </a>
+      </header>
+
+      <hr class="border-gray-200 dark:border-gray-800 mb-10" />
+
+      <!-- Main Content & TOC Grid -->
+      <div class="lg:grid lg:grid-cols-[1fr_250px] gap-12 items-start">
+        <!-- Content -->
+        <div
+          class="prose dark:prose-invert prose-gray max-w-none break-words prose-img:rounded-xl prose-a:text-gray-900 dark:prose-a:text-white hover:prose-a:text-gray-600 prose-a:break-all"
+        >
+          <Content components={{ YouTube }} />
+        </div>
+
+        <!-- TOC (Right side, sticky, hidden on small screens) -->
+        {
+          headings.length > 0 && (
+            <aside class="hidden lg:block sticky top-24 pl-4 border-l border-gray-200 dark:border-gray-800 max-h-[calc(100vh-8rem)] overflow-y-auto toc-container">
+              <h4 class="font-semibold text-gray-900 dark:text-white mb-4 tracking-tight uppercase text-sm">
+                Table of Contents
+              </h4>
+              <nav class="flex flex-col space-y-3 text-sm text-gray-500 dark:text-gray-400">
+                {headings
+                  .filter((h) => h.depth <= 3)
+                  .map((heading) => (
+                    <a
+                      href={`#${heading.slug}`}
+                      class={`toc-link transition-colors hover:text-gray-900 dark:hover:text-white ${heading.depth === 2 ? "pl-2" : ""} ${heading.depth === 3 ? "pl-4 text-xs" : ""}`}
+                      data-slug={heading.slug}
+                    >
+                      {heading.text}
+                    </a>
+                  ))}
+              </nav>
+            </aside>
+          )
+        }
+      </div>
+
+      <!-- Next / Prev Navigation -->
+      <hr class="border-gray-200 dark:border-gray-800 my-16" />
+
+      <nav class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        {
+          prevPost ? (
+            <a
+              href={`/notes/${getSlug(prevPost.id)}`}
+              class="p-6 rounded-2xl border border-gray-200 dark:border-gray-800 hover:border-gray-300 dark:hover:border-gray-600 transition-colors group text-left flex flex-col"
+            >
+              <span class="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">
+                &larr; Previous
+              </span>
+              <span class="text-lg font-medium text-gray-900 dark:text-white group-hover:text-gray-600 dark:group-hover:text-gray-300 transition-colors line-clamp-2">
+                {prevPost.data.title}
+              </span>
+            </a>
+          ) : (
+            <div />
+          )
+        }
+
+        {
+          nextPost ? (
+            <a
+              href={`/notes/${getSlug(nextPost.id)}`}
+              class="p-6 rounded-2xl border border-gray-200 dark:border-gray-800 hover:border-gray-300 dark:hover:border-gray-600 transition-colors group text-right flex flex-col items-end"
+            >
+              <span class="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">
+                Next &rarr;
+              </span>
+              <span class="text-lg font-medium text-gray-900 dark:text-white group-hover:text-gray-600 dark:group-hover:text-gray-300 transition-colors line-clamp-2">
+                {nextPost.data.title}
+              </span>
+            </a>
+          ) : (
+            <div />
+          )
+        }
+      </nav>
+    </article>
+  </div>
+</Layout>
+
+<script>
+  // TOC scroll spy logic
+  function setupTOC() {
+    const observerOptions = {
+      root: null,
+      rootMargin: "0px 0px -80% 0px", // Trigger when heading is near the top
+      threshold: 1.0,
+    };
+
+    const headings = Array.from(document.querySelectorAll("h1, h2, h3"));
+    const tocLinks = document.querySelectorAll(".toc-link");
+
+    if (headings.length === 0 || tocLinks.length === 0) return;
+
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          // Remove active class from all links
+          tocLinks.forEach((link) => {
+            link.classList.remove(
+              "text-gray-900",
+              "dark:text-white",
+              "font-semibold",
+            );
+            link.classList.add("text-gray-500", "dark:text-gray-400");
+          });
+
+          // Add active class to intersecting link
+          const activeLink = document.querySelector(
+            `.toc-link[href="#${entry.target.id}"]`,
+          );
+          if (activeLink) {
+            activeLink.classList.remove("text-gray-500", "dark:text-gray-400");
+            activeLink.classList.add(
+              "text-gray-900",
+              "dark:text-white",
+              "font-semibold",
+            );
+          }
+        }
+      });
+    }, observerOptions);
+
+    headings.forEach((h) => {
+      if (h.id) observer.observe(h);
+    });
+  }
+
+  // Setup on initial load and view transitions
+  document.addEventListener("astro:page-load", setupTOC);
+</script>

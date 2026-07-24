@@ -1,0 +1,127 @@
+---
+const pathname = new URL(Astro.request.url).pathname;
+---
+<header data-astro-transition-persist="header" class="fixed top-0 left-0 right-0 z-50 bg-[#F5F5F5]/70 dark:bg-[#1D1E20]/70 backdrop-blur-md border-b border-gray-200 dark:border-gray-800 transition-colors duration-300">
+  <div id="header-container" class="max-w-7xl mx-auto px-4 sm:px-8 lg:px-12 h-16 flex items-center justify-between relative">
+    <!-- Left: Logo -->
+    <a href="/" class="nav-link flex items-center gap-2 group py-1" aria-label="Home">
+      <img src="/favicon.ico" alt="Logo" class="w-7 h-7 group-hover:opacity-80 transition-opacity">
+      <span class="font-semibold text-lg hidden sm:block tracking-tight text-gray-900 dark:text-white">Jabee's Blog</span>
+    </a>
+    
+    <!-- Center: Desktop Nav -->
+    <nav class="hidden md:flex gap-6 absolute left-1/2 -translate-x-1/2" id="desktop-nav">
+      <a href="/notes" class="nav-link py-1 text-sm font-medium text-gray-600 hover:text-black dark:text-gray-400 dark:hover:text-white transition-colors">Notes</a>
+      <a href="/categories" class="nav-link py-1 text-sm font-medium text-gray-600 hover:text-black dark:text-gray-400 dark:hover:text-white transition-colors">Categories</a>
+      <a href="/about" class="nav-link py-1 text-sm font-medium text-gray-600 hover:text-black dark:text-gray-400 dark:hover:text-white transition-colors">About</a>
+    </nav>
+
+    <!-- Right: Actions -->
+    <div class="flex items-center gap-2 sm:gap-4">
+      <a href="/search" aria-label="Search" class="p-2 text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-full transition-colors hidden md:block">
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+      </a>
+
+      <button id="theme-toggle" aria-label="Toggle Dark Mode" class="p-2 text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-full transition-colors">
+        <svg id="theme-toggle-light-icon" class="block w-5 h-5 dark:hidden" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>
+        <svg id="theme-toggle-dark-icon" class="hidden w-5 h-5 dark:block" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>
+      </button>
+
+      <button id="mobile-menu-btn" aria-label="Open Menu" class="p-2 text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg md:hidden transition-colors">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
+      </button>
+    </div>
+
+    <!-- The sliding indicator line -->
+    <div id="nav-indicator" class="hidden md:block absolute bottom-0 h-[2px] bg-black dark:bg-white transition-all duration-300 pointer-events-none rounded-full" style="width: 0; left: 0; opacity: 0;"></div>
+  </div>
+
+  <!-- Mobile Dropdown Menu -->
+  <div id="mobile-menu" class="hidden md:hidden border-t border-gray-200 dark:border-gray-800 bg-[#F5F5F5]/95 dark:bg-[#1D1E20]/95 backdrop-blur-md">
+    <nav class="flex flex-col px-4 py-4 space-y-4">
+      <a href="/notes" class="text-base font-medium text-gray-700 hover:text-black dark:text-gray-300 dark:hover:text-white transition-colors">Notes</a>
+      <a href="/categories" class="text-base font-medium text-gray-700 hover:text-black dark:text-gray-300 dark:hover:text-white transition-colors">Categories</a>
+      <a href="/about" class="text-base font-medium text-gray-700 hover:text-black dark:text-gray-300 dark:hover:text-white transition-colors">About</a>
+      <a href="/search" class="text-base font-medium text-gray-700 hover:text-black dark:text-gray-300 dark:hover:text-white transition-colors flex items-center gap-2"><span>Search</span></a>
+    </nav>
+  </div>
+</header>
+
+<script>
+  document.addEventListener('astro:page-load', () => {
+    let container = document.getElementById('header-container');
+    let indicator = document.getElementById('nav-indicator');
+    let links = document.querySelectorAll('.nav-link');
+    
+    if (container && indicator && links.length > 0) {
+      let getActiveLink = () => {
+        let active = null;
+        let path = window.location.pathname.replace(/\/$/, '');
+        if (path === '') path = '/';
+        
+        links.forEach(link => {
+          let href = link.getAttribute('href')?.replace(/\/$/, '');
+          if (href === '') href = '/';
+          if (path === href || (href !== '/' && path.startsWith(href))) {
+            active = link;
+          }
+        });
+        return active;
+      };
+      
+      let updateIndicator = (el: Element | null) => {
+        if (el && window.innerWidth >= 768) {
+          let containerRect = container!.getBoundingClientRect();
+          let rect = el.getBoundingClientRect();
+          indicator!.style.width = `${rect.width}px`;
+          indicator!.style.left = `${rect.left - containerRect.left}px`;
+          indicator!.style.opacity = '1';
+        } else {
+          indicator!.style.opacity = '0';
+        }
+      };
+      
+      updateIndicator(getActiveLink());
+      
+      if (!container.dataset.listenersAttached) {
+        links.forEach(link => {
+          link.addEventListener('mouseenter', (e) => updateIndicator(e.target as Element));
+        });
+        container.addEventListener('mouseleave', () => updateIndicator(getActiveLink()));
+        window.addEventListener('resize', () => updateIndicator(getActiveLink()));
+        container.dataset.listenersAttached = 'true';
+      }
+    }
+    
+    // Mobile Menu
+    let mobileBtn = document.getElementById('mobile-menu-btn');
+    let mobileMenu = document.getElementById('mobile-menu');
+    
+    // Ensure mobile menu is closed when navigating to a new page
+    if (mobileMenu) {
+      mobileMenu.classList.add('hidden');
+    }
+
+    if (mobileBtn && mobileMenu && !mobileBtn.dataset.listenersAttached) {
+      mobileBtn.addEventListener('click', () => {
+        mobileMenu!.classList.toggle('hidden');
+      });
+      mobileBtn.dataset.listenersAttached = 'true';
+    }
+    
+    // Theme Toggle
+    let themeBtn = document.getElementById('theme-toggle');
+    if (themeBtn && !themeBtn.dataset.listenersAttached) {
+      themeBtn.addEventListener('click', () => {
+        if (document.documentElement.classList.contains('dark')) {
+          document.documentElement.classList.remove('dark');
+          localStorage.setItem('theme', 'light');
+        } else {
+          document.documentElement.classList.add('dark');
+          localStorage.setItem('theme', 'dark');
+        }
+      });
+      themeBtn.dataset.listenersAttached = 'true';
+    }
+  });
+</script>

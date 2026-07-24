@@ -1,0 +1,63 @@
+---
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+import { ClientRouter } from 'astro:transitions';
+import '../styles/global.css';
+
+interface Props {
+	title?: string;
+	description?: string;
+	fullWidth?: boolean;
+}
+
+const { title = "Jabee's Blog", description = "Jabee's Blog - 人生不只寫code👋", fullWidth = false } = Astro.props;
+---
+
+<!doctype html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="description" content={description} />
+		<meta name="viewport" content="width=device-width" />
+		<link rel="icon" type="image/x-icon" href="/favicon.ico" />
+		<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png" />
+		<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png" />
+		<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
+		<title>{title}</title>
+		<ClientRouter />
+		
+        <script is:inline>
+            // Theme initialization logic to avoid FOUC
+            function applyTheme() {
+              const theme = (() => {
+                if (typeof localStorage !== 'undefined' && localStorage.getItem('theme')) {
+                  return localStorage.getItem('theme');
+                }
+                if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
+                  return 'dark';
+                }
+                return 'light';
+              })();
+            
+              if (theme === 'light') {
+                document.documentElement.classList.remove('dark');
+              } else {
+                document.documentElement.classList.add('dark');
+              }
+              window.localStorage.setItem('theme', theme || 'light');
+            }
+
+            applyTheme();
+
+            // Re-apply theme when navigating to a new page using Astro View Transitions
+            document.addEventListener('astro:after-swap', applyTheme);
+        </script>
+	</head>
+	<body class="min-h-screen flex flex-col font-sans bg-[#F5F5F5] dark:bg-[#1D1E20] text-gray-900 dark:text-gray-100 transition-colors duration-300">
+		<Header />
+		<main class="flex-grow max-w-7xl mx-auto w-full px-4 sm:px-8 lg:px-12 py-8 mt-16">
+			<slot />
+		</main>
+		<Footer />
+	</body>
+</html>

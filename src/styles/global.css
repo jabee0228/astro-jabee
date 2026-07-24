@@ -1,0 +1,18 @@
+@import "tailwindcss";
+@plugin "@tailwindcss/typography";
+@custom-variant dark (&:where(.dark, .dark *));
+
+@theme {
+  --color-primary: #1D1E20;
+  --color-background-light: #F5F5F5;
+}
+
+body {
+  @apply bg-[#F5F5F5] text-gray-900 transition-colors duration-300;
+}
+
+html.dark body {
+  @apply bg-[#1D1E20] text-gray-100;
+}
+
+

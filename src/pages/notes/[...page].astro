@@ -1,0 +1,124 @@
+---
+import Layout from "../../layouts/Layout.astro";
+import { getCollection } from "astro:content";
+
+export async function getStaticPaths({ paginate }) {
+  const posts = (await getCollection("notes")).sort(
+    (a, b) => b.data.date.valueOf() - a.data.date.valueOf(),
+  );
+  return paginate(posts, { pageSize: 12 });
+}
+
+const { page } = Astro.props;
+---
+
+<Layout title="Notes - Jabee's Blog" fullWidth={true}>
+  <section class="mb-16 mt-8 max-w-4xl mx-auto text-center">
+    <h1
+      class="text-4xl font-bold tracking-tight text-gray-900 dark:text-white sm:text-5xl mb-4"
+    >
+      Notes
+    </h1>
+    <p class="text-lg text-gray-600 dark:text-gray-400 mx-auto">
+      所有文章都在這了！
+    </p>
+  </section>
+
+  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+    {
+      page.data.map((post) => {
+        let imageUrl = null;
+        if (post.data.coverImage) {
+          imageUrl = typeof post.data.coverImage === 'string' ? post.data.coverImage : post.data.coverImage.src;
+        } else if (post.body && post.body.includes("![Dummy Image](")) {
+          const match = post.body.match(/!\[.*?\]\((.*?)\)/);
+          if (match && match[1]) {
+            imageUrl = match[1];
+          }
+        }
+        if (!imageUrl) imageUrl = "/favicon.ico"; // Fallback if no image
+
+        return (
+          <article class="group relative flex flex-col items-start justify-start p-5 rounded-2xl border border-gray-200 dark:border-gray-800 hover:bg-white dark:hover:bg-gray-800/50 transition-colors">
+            <div class="w-full h-48 mb-5 overflow-hidden rounded-xl border border-gray-100 dark:border-gray-800">
+              <img
+                src={imageUrl}
+                alt={post.data.title}
+                class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+              />
+            </div>
+            <div class="flex flex-col flex-1 w-full">
+              <div class="flex items-center gap-x-4 text-xs mb-3">
+                <time
+                  datetime={post.data.date.toISOString()}
+                  class="text-gray-500 dark:text-gray-400 font-medium"
+                >
+                  {post.data.date.toLocaleDateString("en-US", {
+                    month: "long",
+                    day: "numeric",
+                    year: "numeric",
+                  })}
+                </time>
+                {post.data.categories && post.data.categories.length > 0 && (
+                  <a
+                    href={`/categories/${post.data.categories[0]}`}
+                    class="relative z-10 rounded-full bg-gray-50 dark:bg-gray-800 px-3 py-1.5 font-medium text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
+                  >
+                    {post.data.categories[0]}
+                  </a>
+                )}
+              </div>
+              <div class="group/title">
+                <h3 class="mt-3 text-xl font-semibold leading-6 text-gray-900 dark:text-white group-hover/title:text-gray-600 dark:group-hover/title:text-gray-300 transition-colors">
+                  <a href={`/notes/${post.id.replace(/\/(?:index)?\.mdx?$/, '').replace(/\.mdx?$/, '')}`}>
+                    <span class="absolute inset-0" />
+                    {post.data.title}
+                  </a>
+                </h3>
+                <p class="mt-2 line-clamp-3 text-sm leading-6 text-gray-600 dark:text-gray-400">
+                  {post.data.description || "點擊閱讀完整文章..."}
+                </p>
+              </div>
+            </div>
+          </article>
+        );
+      })
+    }
+  </div>
+
+  <div
+    class="mt-16 flex items-center justify-between pt-6 border-t border-gray-200 dark:border-gray-800"
+  >
+    <div class="flex-1 text-left">
+      {
+        page.url.prev && (
+          <a
+            href={page.url.prev}
+            class="text-sm font-medium text-gray-600 hover:text-black dark:text-gray-400 dark:hover:text-white transition-colors"
+          >
+            &larr; Previous
+          </a>
+        )
+      }
+    </div>
+
+    <div
+      class="flex-1 text-center text-sm text-gray-500 dark:text-gray-400 font-medium"
+    >
+      Page {page.currentPage} of {page.lastPage}
+    </div>
+
+    <div class="flex-1 text-right">
+      {
+        page.url.next && (
+          <a
+            href={page.url.next}
+            class="text-sm font-medium text-gray-600 hover:text-black dark:text-gray-400 dark:hover:text-white transition-colors"
+          >
+            Next &rarr;
+          </a>
+        )
+      }
+    </div>
+  </div>
+</Layout>

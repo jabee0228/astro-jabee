@@ -1,0 +1,114 @@
+---
+import Layout from "../layouts/Layout.astro";
+---
+
+<Layout title="Search - Jabee's Blog">
+  <div class="max-w-2xl mx-auto">
+    <h1 class="text-3xl font-bold mb-8">Search Posts</h1>
+
+    <div class="relative mb-12">
+      <input
+        type="text"
+        id="search-input"
+        class="w-full px-4 py-3 pl-12 rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-[#2A2B2D] focus:outline-none focus:ring-2 focus:ring-gray-400 dark:focus:ring-gray-500 transition-colors"
+        placeholder="Type to search..."
+        autocomplete="off"
+      />
+      <svg
+        class="absolute left-4 top-3.5 w-5 h-5 text-gray-400"
+        xmlns="http://www.w3.org/2000/svg"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        ><circle cx="11" cy="11" r="8"></circle><line
+          x1="21"
+          y1="21"
+          x2="16.65"
+          y2="16.65"></line></svg
+      >
+    </div>
+
+    <div id="search-results" class="space-y-6">
+      <!-- Results will be injected here -->
+    </div>
+  </div>
+
+  <script>
+    document.addEventListener("astro:page-load", async () => {
+      const searchInput = document.getElementById("search-input");
+      const searchResults = document.getElementById("search-results");
+
+      if (!searchInput || !searchResults) return;
+
+      let posts = [];
+      try {
+        const res = await fetch("/search.json");
+        if (res.ok) {
+          posts = await res.json();
+        }
+      } catch (e) {
+        console.error("Failed to fetch search index:", e);
+      }
+
+      searchInput.addEventListener("input", (e) => {
+        const query = e.target.value.toLowerCase().trim();
+
+        if (!query) {
+          searchResults.innerHTML = "";
+          return;
+        }
+
+        const filtered = posts.filter(post => 
+          post.title.toLowerCase().includes(query) || 
+          post.description.toLowerCase().includes(query) ||
+          (post.body && post.body.toLowerCase().includes(query)) ||
+          (post.categories && post.categories.some(cat => cat.toLowerCase().includes(query))) ||
+          (post.tags && post.tags.some(tag => tag.toLowerCase().includes(query)))
+        );
+
+        if (filtered.length === 0) {
+          searchResults.innerHTML =
+            '<p class="text-gray-500 dark:text-gray-400">No results found.</p>';
+          return;
+        }
+
+        searchResults.innerHTML = filtered
+          .map((post) => {
+            const dateStr = post.date ? new Date(post.date).toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" }) : '';
+            
+            let metaHtml = '';
+            if (dateStr) metaHtml += `<time class="text-gray-500 dark:text-gray-400">${dateStr}</time>`;
+            
+            if (post.categories && post.categories.length > 0) {
+              metaHtml += `<span class="hidden sm:inline text-gray-500">&bull;</span><span class="text-gray-600 dark:text-gray-300">${post.categories[0]}</span>`;
+            }
+
+            if (post.tags && post.tags.length > 0) {
+              metaHtml += `<span class="hidden sm:inline text-gray-500">&bull;</span><div class="flex gap-2 text-gray-600 dark:text-gray-300">` + 
+                post.tags.map((tag, i) => `<span>#${tag}${i < post.tags.length - 1 ? ',' : ''}</span>`).join('') + 
+                `</div>`;
+            }
+
+            return `
+          <div class="border-b border-gray-200 dark:border-gray-800 pb-4 group block">
+            <h3 class="text-xl font-bold mb-2 leading-6 text-gray-900 dark:text-white group-hover:text-gray-600 dark:group-hover:text-gray-300 transition-colors">
+              <a href="/notes/${post.slug}">
+                <span class="absolute inset-0"></span>
+                ${post.title}
+              </a>
+            </h3>
+            <div class="flex flex-wrap items-center gap-x-3 gap-y-1 text-sm mt-1 mb-3">
+              ${metaHtml}
+            </div>
+            ${post.description ? `<p class="text-sm text-gray-600 dark:text-gray-400 line-clamp-2">${post.description}</p>` : ""}
+          </div>
+        `;
+          })
+          .join("");
+      });
+    });
+  </script>
+</Layout>

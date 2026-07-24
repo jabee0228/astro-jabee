@@ -1,0 +1,259 @@
+---
+import Layout from "../../layouts/Layout.astro";
+import { getCollection } from "astro:content";
+import { SITE_CATEGORIES, CATEGORY_DEFAULT_ICON } from "../../consts";
+
+const allPosts = await getCollection("notes");
+
+// Count posts per category (we use categories array)
+const categoryCounts = allPosts.reduce(
+  (acc, post) => {
+    const categories = post.data.categories || [];
+    categories.forEach((category) => {
+      acc[category] = (acc[category] || 0) + 1;
+    });
+    return acc;
+  },
+  {} as Record<string, number>,
+);
+
+// Use predefined categories to ensure all 7 are always displayed
+const categories = SITE_CATEGORIES.map((c) => c.name);
+
+// Count posts per tag
+const tagCounts = allPosts.reduce(
+  (acc, post) => {
+    const tags = post.data.tags || [];
+    tags.forEach((tag) => {
+      acc[tag] = (acc[tag] || 0) + 1;
+    });
+    return acc;
+  },
+  {} as Record<string, number>,
+);
+
+const tags = Object.keys(tagCounts).sort();
+
+// Group posts for archives (Year -> Month)
+const sortedPosts = [...allPosts].sort(
+  (a, b) => b.data.date.valueOf() - a.data.date.valueOf(),
+);
+
+const archives = sortedPosts.reduce(
+  (acc, post) => {
+    const date = post.data.date;
+    const year = date.getFullYear().toString();
+    const month = date.toLocaleString("en-US", { month: "long" });
+
+    if (!acc[year]) {
+      acc[year] = { count: 0, months: {} };
+    }
+    if (!acc[year].months[month]) {
+      acc[year].months[month] = { count: 0, posts: [] };
+    }
+
+    acc[year].count++;
+    acc[year].months[month].count++;
+    acc[year].months[month].posts.push(post);
+
+    return acc;
+  },
+  {} as Record<
+    string,
+    {
+      count: number;
+      months: Record<string, { count: number; posts: typeof allPosts }>;
+    }
+  >,
+);
+
+const years = Object.keys(archives).sort((a, b) => parseInt(b) - parseInt(a));
+
+function getCategoryIcon(category: string) {
+  const found = SITE_CATEGORIES.find(
+    (c) => c.name.toLowerCase() === category.toLowerCase(),
+  );
+  return found ? found.icon : CATEGORY_DEFAULT_ICON;
+}
+
+const getWordCount = (body: string) => (body ? (body.match(/[\u4e00-\u9fa5]|\w+/g)?.length || 0) : 0);
+const getReadTime = (words: number) => Math.max(1, Math.ceil(words / 200));
+const getPostSlug = (id: string) =>
+  id.replace(/\/(?:index)?\.mdx?$/, "").replace(/\.mdx?$/, "");
+---
+
+<Layout title="Categories - Jabee's Blog">
+  <div class="max-w-4xl mx-auto">
+    <section class="mb-12 mt-8 text-center">
+    <h1
+      class="text-4xl font-bold tracking-tight text-gray-900 dark:text-white sm:text-5xl mb-4"
+    >
+      Categories
+    </h1>
+    <p class="text-lg text-gray-600 dark:text-gray-400">來探索一下文章吧！</p>
+  </section>
+
+  <!-- Category Cards / List -->
+  <div
+    class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-0 sm:gap-6 mb-16"
+  >
+    {
+      categories.map((category) => (
+        <a
+          href={`/categories/${category.toLowerCase().replace(/\s+/g, "-")}`}
+          class="group flex flex-row sm:flex-col justify-between sm:justify-center items-center py-5 sm:p-8 sm:rounded-2xl bg-transparent sm:bg-white sm:dark:bg-[#242526] border-b border-gray-200 dark:border-gray-800 sm:border-b-0 sm:border sm:dark:border-[#333438] hover:border-gray-900 dark:hover:border-gray-400 transition-all sm:hover:-translate-y-1 sm:shadow-sm sm:hover:shadow-md text-gray-900 dark:text-white no-underline"
+        >
+          <div class="flex items-center flex-row sm:flex-col">
+            <div set:html={getCategoryIcon(category)} />
+            <h2 class="text-xl sm:text-2xl font-bold sm:mb-2 group-hover:text-gray-600 dark:group-hover:text-gray-300 transition-colors">
+              {category}
+            </h2>
+          </div>
+          <span class="text-sm font-medium text-gray-500 dark:text-gray-400">
+            {categoryCounts[category] || 0} article
+            {(categoryCounts[category] || 0) !== 1 ? "s" : ""}
+          </span>
+        </a>
+      ))
+    }
+  </div>
+
+  <!-- Tags Section -->
+  <section
+    class="mb-12 mt-16 text-center border-t border-gray-200 dark:border-gray-800 pt-16"
+  >
+    <h2
+      class="text-3xl font-bold tracking-tight text-gray-900 dark:text-white mb-8"
+    >
+      Tags
+    </h2>
+    <ul class="flex flex-wrap justify-center gap-x-8 gap-y-6 list-none p-0 m-0">
+      {
+        tags.map((tag) => (
+          <li class="inline-block">
+            <a
+              href={`/tags/${tag.toLowerCase().replace(/\s+/g, "-")}`}
+              class="group text-lg font-medium text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white transition-colors underline decoration-transparent hover:decoration-gray-400 dark:hover:decoration-gray-600 underline-offset-4"
+            >
+              {tag}{" "}
+              <sup class="text-xs font-bold text-gray-400 dark:text-gray-500 group-hover:text-gray-600 dark:group-hover:text-gray-400 transition-colors">
+                {tagCounts[tag]}
+              </sup>
+            </a>
+          </li>
+        ))
+      }
+    </ul>
+  </section>
+
+  <!-- Archives Section -->
+  <section
+    class="mb-12 mt-16 text-left border-t border-gray-200 dark:border-gray-800 pt-16"
+  >
+    <h2
+      class="text-3xl font-bold tracking-tight text-gray-900 dark:text-white mb-12 text-center"
+    >
+      Site Archives
+    </h2>
+
+    <div class="space-y-12">
+      {
+        years.map((year) => (
+          <div class="archive-year">
+            <h2 class="text-3xl font-bold text-gray-900 dark:text-white mb-6">
+              {year}{" "}
+              <sup class="text-sm text-gray-500 dark:text-gray-400 font-normal ml-1">
+                {archives[year].count}
+              </sup>
+            </h2>
+            <div class="space-y-12 pl-4 md:pl-8 border-l border-gray-200 dark:border-gray-800">
+              {Object.keys(archives[year].months).map((month) => (
+                <div class="archive-month relative flex flex-col md:flex-row gap-4 md:gap-10 items-start">
+                  <div class="w-full md:w-32 shrink-0 md:pt-0.5">
+                    <h3 class="text-2xl font-bold text-gray-800 dark:text-gray-200 md:sticky md:top-24 break-keep">
+                      {month}{" "}
+                      <sup class="text-sm text-gray-500 dark:text-gray-400 font-normal ml-1">
+                        {archives[year].months[month].count}
+                      </sup>
+                    </h3>
+                  </div>
+
+                  <div class="flex-1 space-y-8">
+                    {archives[year].months[month].posts.map((post) => {
+                      const wordCount = getWordCount(post.body || "");
+                      const readTime = getReadTime(wordCount);
+
+                      return (
+                        <div class="group block">
+                          <a
+                            href={`/notes/${getPostSlug(post.id)}`}
+                            class="block text-lg font-medium text-gray-900 dark:text-white group-hover:text-gray-600 dark:group-hover:text-gray-300 transition-colors"
+                          >
+                            {post.data.title}
+                          </a>
+                          <div class="flex flex-wrap items-center gap-x-3 gap-y-1 mt-2 text-sm text-gray-500 dark:text-gray-400">
+                            <time datetime={post.data.date.toISOString()}>
+                              {post.data.date.toLocaleDateString("en-US", {
+                                year: "numeric",
+                                month: "long",
+                                day: "numeric",
+                              })}
+                            </time>
+
+                            {post.data.categories &&
+                              post.data.categories.length > 0 && (
+                                <>
+                                  <span class="hidden sm:inline">&bull;</span>
+                                  <a
+                                    href={`/categories/${post.data.categories[0].toLowerCase().replace(/\s+/g, "-")}`}
+                                    class="hover:text-gray-800 dark:hover:text-gray-200 transition-colors"
+                                  >
+                                    {post.data.categories[0]}
+                                  </a>
+                                </>
+                              )}
+
+                            {post.data.tags && post.data.tags.length > 0 && (
+                              <>
+                                <span class="hidden sm:inline">&bull;</span>
+                                <div class="flex gap-2">
+                                  {post.data.tags.map((tag, index) => (
+                                    <span>
+                                      <a
+                                        href={`/tags/${tag.toLowerCase().replace(/\s+/g, "-")}`}
+                                        class="hover:text-gray-800 dark:hover:text-gray-200 transition-colors"
+                                      >
+                                        #{tag}
+                                      </a>
+                                      {index < post.data.tags!.length - 1
+                                        ? ","
+                                        : ""}
+                                    </span>
+                                  ))}
+                                </div>
+                              </>
+                            )}
+
+                            {wordCount > 0 && (
+                              <>
+                                <span class="hidden sm:inline">&bull;</span>
+                                <span>{wordCount} words</span>
+                                <span class="hidden sm:inline">&bull;</span>
+                                <span>{readTime} min</span>
+                              </>
+                            )}
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        ))
+      }
+    </div>
+  </section>
+  </div>
+</Layout>
