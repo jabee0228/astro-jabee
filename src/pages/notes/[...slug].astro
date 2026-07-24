@@ -2,6 +2,7 @@
 import { getCollection, render } from 'astro:content';
 import Layout from "../../layouts/Layout.astro";
 import YouTube from "../../components/YouTube.astro";
+import { Image } from "astro:assets";
 // Note: Callout, Youtube imports can be omitted if not exist, or added if they do.
 // I will not import them unless they exist. Wait, let's assume they might not exist, but let's check.
 // I will just use <Content /> without custom components for now, or check if they exist.
@@ -50,8 +51,14 @@ const SITE_AUTHOR = {
 
 // Find cover image from markdown if possible
 let coverImage = null;
+let coverImageObj = null;
 if (post.data.coverImage) {
-  coverImage = typeof post.data.coverImage === 'string' ? post.data.coverImage : post.data.coverImage.src;
+  if (typeof post.data.coverImage === 'string') {
+    coverImage = post.data.coverImage;
+  } else {
+    coverImageObj = post.data.coverImage;
+    coverImage = post.data.coverImage.src;
+  }
 } else if (post.body && post.body.includes("![Dummy Image](")) {
   const match = post.body.match(/!\[.*?\]\((.*?)\)/);
   if (match && match[1]) coverImage = match[1];
@@ -63,13 +70,22 @@ if (post.data.coverImage) {
     <article class="max-w-none">
       <!-- Hero Image -->
       {
-        coverImage && (
+        (coverImage || coverImageObj) && (
           <div class="w-full h-64 md:h-96 rounded-2xl overflow-hidden mb-8 border border-gray-200 dark:border-gray-800">
-            <img
-              src={coverImage}
-              alt={post.data.title}
-              class="w-full h-full object-cover"
-            />
+            {coverImageObj ? (
+              <Image
+                src={coverImageObj}
+                alt={post.data.title}
+                format="webp"
+                class="w-full h-full object-cover"
+              />
+            ) : (
+              <img
+                src={coverImage}
+                alt={post.data.title}
+                class="w-full h-full object-cover"
+              />
+            )}
           </div>
         )
       }
