@@ -100,6 +100,24 @@ const breadcrumbSchema = {
 		<title>{title}</title>
 		<ClientRouter />
 
+		<!-- Google tag (gtag.js) -->
+		<script is:inline async src="https://www.googletagmanager.com/gtag/js?id=G-C117DRX8W6"></script>
+		<script is:inline>
+			window.dataLayer = window.dataLayer || [];
+			function gtag(){dataLayer.push(arguments);}
+			gtag('js', new Date());
+
+			// 初始網頁載入時的追蹤
+			gtag('config', 'G-C117DRX8W6');
+
+			// 支援 Astro View Transitions 的換頁追蹤
+			document.addEventListener('astro:page-load', () => {
+				gtag('config', 'G-C117DRX8W6', {
+					page_path: window.location.pathname,
+				});
+			});
+		</script>
+
 		<!-- JSON-LD Structured Data -->
 		<script type="application/ld+json" set:html={JSON.stringify(websiteSchema)} />
 		{extraJsonLd.length === 0 && <script type="application/ld+json" set:html={JSON.stringify(breadcrumbSchema)} />}
