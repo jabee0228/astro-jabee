@@ -3,10 +3,7 @@ import { getCollection, render } from 'astro:content';
 import Layout from "../../layouts/Layout.astro";
 import YouTube from "../../components/YouTube.astro";
 import { Image } from "astro:assets";
-// Note: Callout, Youtube imports can be omitted if not exist, or added if they do.
-// I will not import them unless they exist. Wait, let's assume they might not exist, but let's check.
-// I will just use <Content /> without custom components for now, or check if they exist.
-// Let's implement the routing properly first.
+import { SITE_URL, SITE_AUTHOR } from "../../consts";
 
 export async function getStaticPaths() {
   const getSlug = (id) => id.replace(/\/(?:index)?\.mdx?$/, '').replace(/\.mdx?$/, '');
@@ -43,11 +40,6 @@ const formattedLastMod = post.data.lastmod ? post.data.lastmod.toLocaleDateStrin
 
 // Since we may not have wordCount in our schema, I'll provide safe fallbacks
 const wordCount = post.body ? (post.body.match(/[\u4e00-\u9fa5]|\w+/g)?.length || 0) : 0;
-const SITE_AUTHOR = {
-  name: "Jabee姜",
-  title: "CS Master's Student, Photographer",
-  avatar: "/IMG_9991.JPEG",
-};
 
 // Find cover image from markdown if possible
 let coverImage = null;
@@ -63,9 +55,76 @@ if (post.data.coverImage) {
   const match = post.body.match(/!\[.*?\]\((.*?)\)/);
   if (match && match[1]) coverImage = match[1];
 }
+
+// SEO: Article description fallback
+const articleDescription = post.data.description || (post.body ? post.body.replace(/[#*\[\]()!`>]/g, '').slice(0, 150).trim() + '...' : '');
+
+// SEO: OG image URL
+const ogImage = coverImage || '/android-chrome-512x512.png';
+
+// SEO: Article JSON-LD
+const articleUrl = new URL(`/notes/${getSlug(post.id)}`, SITE_URL).href;
+const articleSchema = {
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": post.data.title,
+  "description": articleDescription,
+  "image": ogImage.startsWith('http') ? ogImage : new URL(ogImage, SITE_URL).href,
+  "datePublished": post.data.date.toISOString(),
+  "dateModified": (post.data.lastmod || post.data.date).toISOString(),
+  "author": {
+    "@type": "Person",
+    "name": SITE_AUTHOR.name,
+    "url": SITE_URL + "/about",
+  },
+  "publisher": {
+    "@type": "Person",
+    "name": SITE_AUTHOR.name,
+  },
+  "mainEntityOfPage": {
+    "@type": "WebPage",
+    "@id": articleUrl,
+  },
+  "wordCount": wordCount,
+  "keywords": [...(post.data.categories || []), ...(post.data.tags || [])].join(', '),
+};
+
+const breadcrumbSchema = {
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position": 1,
+      "name": "首頁",
+      "item": SITE_URL,
+    },
+    {
+      "@type": "ListItem",
+      "position": 2,
+      "name": "文章",
+      "item": SITE_URL + "/notes",
+    },
+    {
+      "@type": "ListItem",
+      "position": 3,
+      "name": post.data.title,
+      "item": articleUrl,
+    },
+  ],
+};
 ---
 
-<Layout title={`${post.data.title} - Jabee's Blog`}>
+<Layout
+  title={`${post.data.title} - Jabee's Blog`}
+  description={articleDescription}
+  image={ogImage}
+  type="article"
+  publishDate={post.data.date}
+  modifiedDate={post.data.lastmod || post.data.date}
+  tags={[...(post.data.categories || []), ...(post.data.tags || [])]}
+  extraJsonLd={[articleSchema, breadcrumbSchema]}
+>
   <div class="max-w-5xl mx-auto">
     <article class="max-w-none">
       <!-- Hero Image -->
