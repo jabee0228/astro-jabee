@@ -1,5 +1,6 @@
 ---
 date: '2024-11-19T13:34:08+08:00'
+lastmod: '2024-11-20'
 title: '吵得沸沸揚揚的 Mac mini M4 開機按鍵'
 categories: ["科技"]
 tags: ["科技"]
