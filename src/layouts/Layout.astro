@@ -3,6 +3,7 @@ import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
 import { ClientRouter } from 'astro:transitions';
 import { SITE_TITLE, SITE_DESCRIPTION, SITE_URL, SITE_OG_IMAGE, SITE_AUTHOR } from '../consts';
+import ImageZoom from '../components/ImageZoom.astro';
 import '../styles/global.css';
 
 interface Props {
@@ -137,5 +138,6 @@ const breadcrumbSchema = {
 			<slot />
 		</main>
 		<Footer />
+		<ImageZoom />
 	</body>
 </html>

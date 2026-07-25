@@ -1,0 +1,256 @@
+---
+// ImageZoom.astro
+---
+
+<div id="image-zoom-modal" class="image-zoom-modal">
+  <div class="image-zoom-backdrop"></div>
+  <div class="image-zoom-content">
+    <img class="image-zoom-img" src="" alt="">
+  </div>
+</div>
+
+<style>
+  .image-zoom-modal {
+    position: fixed;
+    inset: 0;
+    z-index: 50;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    pointer-events: none;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.3s ease, visibility 0.3s ease;
+  }
+  .image-zoom-modal.active {
+    pointer-events: auto;
+    opacity: 1;
+    visibility: visible;
+  }
+  .image-zoom-backdrop {
+    position: absolute;
+    inset: 0;
+    background-color: rgba(255, 255, 255, 0.9);
+    backdrop-filter: blur(5px);
+  }
+  :global(.dark) .image-zoom-backdrop {
+    background-color: rgba(0, 0, 0, 0.8);
+  }
+  .image-zoom-content {
+    position: relative;
+    z-index: 10;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .image-zoom-img {
+    max-width: 90vw;
+    max-height: 90vh;
+    object-fit: contain;
+    transition: transform 0.3s ease;
+  }
+</style>
+
+<script>
+  function initImageZoom() {
+    const modal = document.getElementById("image-zoom-modal");
+    const img = modal?.querySelector(".image-zoom-img") as HTMLImageElement;
+    if (!modal || !img) return;
+
+    let isZoomed = false;
+    let scale = 1;
+    let translateX = 0;
+    let translateY = 0;
+    let imgWidth = 0;
+    let imgHeight = 0;
+    let isDragging = false;
+    let startX = 0;
+    let startY = 0;
+    let prevTranslateX = 0;
+    let prevTranslateY = 0;
+    let hasMoved = false;
+
+    function constrainPan() {
+      const maxTranslateX = Math.max(0, (imgWidth * scale - window.innerWidth) / 2);
+      const maxTranslateY = Math.max(0, (imgHeight * scale - window.innerHeight) / 2);
+      translateX = Math.max(-maxTranslateX, Math.min(maxTranslateX, translateX));
+      translateY = Math.max(-maxTranslateY, Math.min(maxTranslateY, translateY));
+    }
+
+    function resetZoom(instant = false) {
+      if (!img) return;
+      isZoomed = false;
+      isDragging = false;
+      scale = 1;
+      translateX = 0;
+      translateY = 0;
+      imgWidth = 0;
+      imgHeight = 0;
+      img.style.cursor = "";
+      img.style.touchAction = "";
+      img.style.borderRadius = "";
+      
+      if (instant) {
+        img.style.transition = "none";
+        img.style.transform = "";
+        requestAnimationFrame(() => {
+          img.style.transition = "";
+        });
+      } else {
+        img.style.transition = "transform 0.3s ease";
+        img.style.transform = "";
+        setTimeout(() => {
+          img.style.transition = "";
+        }, 300);
+      }
+    }
+
+    const closeModal = () => {
+      isZoomed = false;
+      isDragging = false;
+      if (img) {
+        img.style.cursor = "";
+        img.style.touchAction = "";
+        img.style.borderRadius = "";
+        img.style.transition = "";
+        img.style.transform = "";
+      }
+      if (modal) {
+        modal.classList.remove("active");
+        document.body.style.overflow = "";
+      }
+    };
+
+    function handleZoomClick(e: MouseEvent) {
+      if (hasMoved) return;
+      const target = e.currentTarget as HTMLImageElement;
+      
+      if (isZoomed) {
+        resetZoom(false);
+        return;
+      }
+      
+      const rect = target.getBoundingClientRect();
+      imgWidth = rect.width;
+      imgHeight = rect.height;
+      
+      const calcScale = Math.max(window.innerWidth / rect.width, window.innerHeight / rect.height);
+      const originX = e.clientX - (rect.left + rect.width / 2);
+      const originY = e.clientY - (rect.top + rect.height / 2);
+      
+      translateX = originX * (1 - calcScale);
+      translateY = originY * (1 - calcScale);
+      scale = calcScale;
+      
+      constrainPan();
+      
+      isZoomed = true;
+      target.style.transition = "transform 0.3s ease";
+      target.style.cursor = "grab";
+      target.style.touchAction = "none";
+      target.style.borderRadius = "0";
+      target.style.transform = `translate(${translateX}px, ${translateY}px) scale(${scale})`;
+    }
+
+    function handlePointerDown(e: PointerEvent) {
+      hasMoved = false;
+      if (!isZoomed) return;
+      isDragging = true;
+      startX = e.clientX;
+      startY = e.clientY;
+      prevTranslateX = translateX;
+      prevTranslateY = translateY;
+      
+      const target = e.currentTarget as HTMLImageElement;
+      target.setPointerCapture(e.pointerId);
+      target.style.cursor = "grabbing";
+      target.style.transition = "none";
+    }
+
+    function handlePointerMove(e: PointerEvent) {
+      if (!isDragging) return;
+      
+      const deltaX = e.clientX - startX;
+      const deltaY = e.clientY - startY;
+      
+      if (Math.abs(deltaX) > 3 || Math.abs(deltaY) > 3) {
+        hasMoved = true;
+      }
+      
+      translateX = prevTranslateX + deltaX;
+      translateY = prevTranslateY + deltaY;
+      constrainPan();
+      
+      const target = e.currentTarget as HTMLImageElement;
+      target.style.transform = `translate(${translateX}px, ${translateY}px) scale(${scale})`;
+    }
+
+    function handlePointerUp(e: PointerEvent) {
+      if (!isDragging) return;
+      isDragging = false;
+      
+      const target = e.currentTarget as HTMLImageElement;
+      if (isZoomed) {
+        target.style.cursor = "grab";
+      }
+    }
+
+    // Bind click to article images
+    document.querySelectorAll("main img").forEach((el) => {
+      const imageEl = el as HTMLImageElement;
+      imageEl.style.cursor = "pointer";
+      // We want to avoid adding multiple event listeners on page changes if the script re-runs.
+      // So we clone the node, or we can just make sure we only attach once. 
+      // Actually with astro:page-load it might run on new elements.
+      // Easiest is remove old listener or just rely on a data attribute
+      if (imageEl.dataset.zoomBound) return;
+      imageEl.dataset.zoomBound = "true";
+      
+      imageEl.addEventListener("click", () => {
+        if (modal && img) {
+          resetZoom(true);
+          img.src = imageEl.src;
+          img.alt = imageEl.alt;
+          modal.classList.add("active");
+          document.body.style.overflow = "hidden";
+        }
+      });
+    });
+
+    modal?.addEventListener("click", (e) => {
+      if (!isZoomed || e.target !== img) {
+        closeModal();
+      }
+    });
+
+    document.addEventListener("keydown", (e) => {
+      if (e.key === "Escape" && modal?.classList.contains("active")) {
+        closeModal();
+      }
+    });
+
+    if (img) {
+      img.draggable = false;
+      // Need to make sure we don't bind multiple times to the modal image.
+      if (!img.dataset.zoomEventsBound) {
+          img.dataset.zoomEventsBound = "true";
+          img.addEventListener("click", handleZoomClick as EventListener);
+          img.addEventListener("pointerdown", handlePointerDown as EventListener);
+          img.addEventListener("pointermove", handlePointerMove as EventListener);
+          img.addEventListener("pointerup", handlePointerUp as EventListener);
+          img.addEventListener("pointercancel", handlePointerUp as EventListener);
+      }
+    }
+
+    window.addEventListener("resize", () => {
+      if (isZoomed) {
+        resetZoom(true);
+      }
+    });
+  }
+
+  // Support Astro View Transitions
+  document.addEventListener("astro:page-load", initImageZoom);
+</script>
