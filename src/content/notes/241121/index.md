@@ -24,7 +24,7 @@ description: "持續更新中 作業系統 - macOS：世界上最好用的作業
 - Magnet：一款可以讓舊版 macOS 實現視窗管理的工具
 - Arc browser：目前幾乎沒有類似媲美的瀏覽器，可以實現不同身份的切換，基於 chromium
 - Zen Browser：類似 Arc ，基於 firefox，目前還是有一些bug，但可以在 Linux 上使用
-- jetbrains 全家桶：比 vscode 好用多了，壞處就是要一個個下載
+- Jetbrains 全家桶：比 vscode 好用多了，壞處就是要一個個下載
 - adobe LR：因為就真的只有它比較好用，但月費是真的貴
 - Zed：純文字的編輯器，可以算是 Atom 停更以後的版本
 - Termius：沒有付費就很好用的 ssh 工具
@@ -34,3 +34,4 @@ description: "持續更新中 作業系統 - macOS：世界上最好用的作業
 - EasyDict：非常好使用的翻譯插件，能搭配各種有開放 api 的翻譯軟體使用
 - TailScale：沒有對外固定IP時很好用
 - Lark：國際版飛書，可以免費使用自定義的 Domain 來發信，非常方便
+- Antigravity IDE：為了方便使用 Gemini 來 Vibe，雖然不是很想用它，但畢竟有 AI Pro 的帳好可以好好利用，Token 給的也是真的多。
