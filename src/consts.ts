@@ -1,6 +1,6 @@
 export const SITE_URL = "https://jabee.net";
 export const SITE_TITLE = "Jabee's Blog | Jabee姜 - 人生不只寫code";
-export const SITE_DESCRIPTION = "Jabee 的個人部落格 - 分享科技、攝影、旅遊、重機生活與日常隨筆。Jabee姜，中正資工碩士生，用文字記錄人生的每一刻。";
+export const SITE_DESCRIPTION = "Jabee 的個人部落格 - 分享科技、攝影、旅遊、重機生活與日常隨筆。Jabee姜，中正資工碩士生在讀生，業餘攝影";
 export const SITE_OG_IMAGE = "/android-chrome-512x512.png";
 
 export const SITE_AUTHOR = {
