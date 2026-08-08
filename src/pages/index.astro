@@ -2,6 +2,7 @@
 import Layout from '../layouts/Layout.astro';
 import { getCollection } from 'astro:content';
 import { Image } from 'astro:assets';
+import { getPostDescription } from '../utils/description';
 
 const posts = (await getCollection('notes')).sort(
   (a, b) => b.data.date.valueOf() - a.data.date.valueOf()
@@ -94,7 +95,7 @@ const totalWordCount = posts.reduce((acc, post) => {
                     </a>
                   </h3>
                   <p class="mt-2 line-clamp-2 text-sm leading-6 text-gray-600 dark:text-gray-400">
-                    {post.data.description || '點擊閱讀完整文章...'}
+                    {getPostDescription(post) || '點擊閱讀完整文章...'}
                   </p>
                 </div>
               </div>

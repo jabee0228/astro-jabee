@@ -1,4 +1,5 @@
 import { getCollection } from 'astro:content';
+import { getPostDescription } from '../utils/description';
 
 export async function GET() {
   const posts = await getCollection('notes');
@@ -6,7 +7,7 @@ export async function GET() {
   const formattedPosts = posts.map(post => ({
     title: post.data.title,
     slug: post.id.replace(/\/(?:index)?\.mdx?$/, '').replace(/\.mdx?$/, ''),
-    description: post.data.description || '',
+    description: getPostDescription(post),
     body: post.body || '',
     categories: post.data.categories || [],
     tags: post.data.tags || [],

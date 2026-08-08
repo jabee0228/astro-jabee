@@ -4,6 +4,7 @@ import Layout from "../../layouts/Layout.astro";
 import YouTube from "../../components/YouTube.astro";
 import { Image } from "astro:assets";
 import { SITE_URL, SITE_AUTHOR } from "../../consts";
+import { getPostDescription } from "../../utils/description";
 
 export async function getStaticPaths() {
   const getSlug = (id) => id.replace(/\/(?:index)?\.mdx?$/, '').replace(/\.mdx?$/, '');
@@ -57,7 +58,7 @@ if (post.data.coverImage) {
 }
 
 // SEO: Article description fallback
-const articleDescription = post.data.description || (post.body ? post.body.replace(/[#*\[\]()!`>]/g, '').slice(0, 150).trim() + '...' : '');
+const articleDescription = getPostDescription(post);
 
 // SEO: OG image URL
 const ogImage = coverImage || '/android-chrome-512x512.png';

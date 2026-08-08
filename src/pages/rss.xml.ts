@@ -1,6 +1,7 @@
 import rss from '@astrojs/rss';
 import { getCollection } from 'astro:content';
 import { SITE_TITLE, SITE_DESCRIPTION, SITE_URL } from '../consts';
+import { getPostDescription } from '../utils/description';
 
 export async function GET(context) {
   const posts = (await getCollection('notes')).sort(
@@ -16,7 +17,7 @@ export async function GET(context) {
     items: posts.map((post) => ({
       title: post.data.title,
       pubDate: post.data.date,
-      description: post.data.description || '',
+      description: getPostDescription(post),
       link: `/notes/${getSlug(post.id)}/`,
       categories: [...(post.data.categories || []), ...(post.data.tags || [])],
     })),
