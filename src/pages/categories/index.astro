@@ -3,7 +3,7 @@ import Layout from "../../layouts/Layout.astro";
 import { getCollection } from "astro:content";
 import { SITE_CATEGORIES, CATEGORY_DEFAULT_ICON } from "../../consts";
 
-const allPosts = await getCollection("notes");
+const allPosts = await getCollection("notes", ({ data }) => import.meta.env.PROD ? data.draft !== true : true);
 
 // Count posts per category (we use categories array)
 const categoryCounts = allPosts.reduce(

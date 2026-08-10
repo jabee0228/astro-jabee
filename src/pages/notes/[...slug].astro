@@ -8,7 +8,7 @@ import { getPostDescription } from "../../utils/description";
 
 export async function getStaticPaths() {
   const getSlug = (id) => id.replace(/\/(?:index)?\.mdx?$/, '').replace(/\.mdx?$/, '');
-  const posts = await getCollection("notes");
+  const posts = await getCollection("notes", ({ data }) => import.meta.env.PROD ? data.draft !== true : true);
   posts.sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf());
 
   return posts.map((post, index) => {
