@@ -8,7 +8,7 @@ coverImage: /images/cover.webp
 description: "這是我的「」的投稿文章。本月主題是「」，由 主持。如果你有自己的部落格，歡迎一起來參加！ <hr Jabee 我算是滿會幻想的，對於自己的人生確實有不少憧憬，藉..."
 ---
 
-這是我的「[BlogBlog 同樂會 - 2026 年 3 月](https://blogblog.club/party)」的投稿文章。本月主題是「[理想的日常](https://alexhsu.com/perfect-days)」，由 [Alex Hsu](https://alexhsu.com/) 主持。如果你有自己的部落格，歡迎一起來參加！
+> 這是我的「[BlogBlog 同樂會 - 2026 年 3 月](https://blogblog.club/party)」的投稿文章。本月主題是「[理想的日常](https://alexhsu.com/perfect-days)」，由 [Alex Hsu](https://alexhsu.com/) 主持。如果你有自己的部落格，歡迎一起來參加！
 
 <hr>
 

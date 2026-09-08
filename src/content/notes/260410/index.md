@@ -7,7 +7,7 @@ tags: ["分享","BlogBlog 同樂會"]
 description: "這是 Jabee 我的「」的投稿文章。本月主題是「」！ <hr Jabee 在上大學前每天高中的日常就是早上到學校先抄一抄功課（因為前一天是不會寫的），然後該考..."
 ---
 
-這是 Jabee 我的「[BlogBlog 同樂會 - 2026 年 4 月](https://blogblog.club/party/?ref=wen-lab.tw)」的投稿文章。本月主題是「[生產力](https://www.wen-lab.tw/blogblog-party-productivity)」！
+> 這是 Jabee 我的「[BlogBlog 同樂會 - 2026 年 4 月](https://blogblog.club/party/?ref=wen-lab.tw)」的投稿文章。本月主題是「[生產力](https://www.wen-lab.tw/blogblog-party-productivity)」！
 
 <hr>
 

@@ -6,7 +6,7 @@ tags: ["分享","BlogBlog 同樂會"]
 description: "這是我的「」的投稿文章。本月主題是「」，由 主持。如果你有自己的部落格，歡迎一起來參加！ <hr 本月的主題是音樂與記憶，老實說，Jabee 我想不到真的有什麼..."
 ---
 
-這是我的「[BlogBlog 同樂會 - 2026 年 6 月](https://blogblog.club/party/)」的投稿文章。本月主題是「[音樂與記憶](https://www.yozblog.com/posts/music-and-memories)」，由 [柚子](https://www.yozblog.com/) 主持。如果你有自己的部落格，歡迎一起來參加！
+> 這是我的「[BlogBlog 同樂會 - 2026 年 6 月](https://blogblog.club/party/)」的投稿文章。本月主題是「[音樂與記憶](https://www.yozblog.com/posts/music-and-memories)」，由 [柚子](https://www.yozblog.com/) 主持。如果你有自己的部落格，歡迎一起來參加！
 
 <hr>
 
