@@ -12,7 +12,7 @@ while [ -d "./$DIR_NAME" ]; do
 done
 
 # 3. 取得目前時間 (格式: YYYY-MM-DDTHH:MM:SS+TZ)
-CURRENT_TIME=$(date +"%Y-%m-%dT%H:%M:%S%:z")
+CURRENT_TIME=$(date +"%Y-%m-%dT%H:%M:%S%")
 
 # 4. 建立目錄 (這時候的 DIR_NAME 已經是確定不重複的了)
 mkdir -p "./$DIR_NAME"
