@@ -268,16 +268,16 @@ const breadcrumbSchema = {
 
       <nav class="grid grid-cols-1 md:grid-cols-2 gap-4">
         {
-          prevPost ? (
+          nextPost ? (
             <a
-              href={`/notes/${getSlug(prevPost.id)}`}
+              href={`/notes/${getSlug(nextPost.id)}`}
               class="p-6 rounded-2xl border border-gray-200 dark:border-gray-800 hover:border-gray-300 dark:hover:border-gray-600 transition-colors group text-left flex flex-col"
             >
               <span class="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">
-                &larr; Previous
+                &larr; Next
               </span>
               <span class="text-lg font-medium text-gray-900 dark:text-white group-hover:text-gray-600 dark:group-hover:text-gray-300 transition-colors line-clamp-2">
-                {prevPost.data.title}
+                {nextPost.data.title}
               </span>
             </a>
           ) : (
@@ -286,16 +286,16 @@ const breadcrumbSchema = {
         }
 
         {
-          nextPost ? (
+          prevPost ? (
             <a
-              href={`/notes/${getSlug(nextPost.id)}`}
+              href={`/notes/${getSlug(prevPost.id)}`}
               class="p-6 rounded-2xl border border-gray-200 dark:border-gray-800 hover:border-gray-300 dark:hover:border-gray-600 transition-colors group text-right flex flex-col items-end"
             >
               <span class="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">
-                Next &rarr;
+                Previous &rarr;
               </span>
               <span class="text-lg font-medium text-gray-900 dark:text-white group-hover:text-gray-600 dark:group-hover:text-gray-300 transition-colors line-clamp-2">
-                {nextPost.data.title}
+                {prevPost.data.title}
               </span>
             </a>
           ) : (
