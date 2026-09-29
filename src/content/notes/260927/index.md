@@ -3,6 +3,7 @@ date: '2026-09-27T21:31:44'
 title: '晚上不睡覺不如早上很早起'
 categories: ["旅遊"]
 tags: ["BlogBlog 同樂會", "攻略"]
+coverImage: "image-20260927225435333.png"
 ---
 
 > 這是我的「[BlogBlog 同樂會 - 2026 年 9 月](https://blogblog.club/party/)」的投稿文章。本月主題是「[晚上不睡覺](https://jasonjlai.net/zh/3pwriting/stay-up.html)」，由 [Jason Lai](https://jasonjlai.net/) 主持。如果你有自己的部落格，歡迎一起來參加！
